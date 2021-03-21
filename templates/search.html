@@ -1,0 +1,201 @@
+{%extends "base.html" %}
+
+
+
+{% block content %}
+
+<main>
+
+  <div class="main-content">
+    <div class="row">
+
+      <div class="card card-shadowed px-50 py-30 w-800px mx-auto">
+        <form class="form-type-material" action="{{ url_for('search_result') }}" method="GET" autocomplete="off">
+          <header class="text-center  ">
+            <strong>
+              <h1>Search </h1>
+              {% if msg != ""  and msg != None %}
+              <h3 class="yellow_color">{{msg}}</h3>
+              {%endif%}
+            </strong>
+            <hr>
+          </header>
+
+          <br>
+          <div class="row">
+
+
+
+            <div class="form-group col-md-6">
+              <h5 class="text-fader">AGE</h5>
+
+              <input class="form-control" type="number" name="min_age" value="" placeholder="Min">
+              <input class="form-control" type="number" name="max_age" value="" placeholder="Max">
+            </div>
+
+            <div class="form-group col-md-6">
+              <h5 class="text-fader">DISTANCE</h5>
+
+              <input class="form-control" type="number" name="min_distance" value="" placeholder="Min">
+              <input class="form-control" type="number" name="max_distance" value="" placeholder="Max">
+            </div>
+
+
+            <div class="form-group col-md-12">
+              <hr>
+              <h5 class="text-fader">POPULARITY</h5>
+
+              <input class="form-control" type="number" name="min_score" value="" placeholder="Min">
+              <input class="form-control" type="number" name="max_score" value="" placeholder="Max">
+            </div>
+
+
+
+
+          </div>
+          <div class="col-md-12">
+            <hr>
+            <fieldset class="multi-select">
+              <legend>Please Select Hashtag</legend>
+              {% for hashtag in hashtags%}
+              {% set hashtag = hashtag.replace("+","") %}
+
+              <label><input type="checkbox" class="{{hashtag}}" name="hashtag[{{hashtag}}]"
+                  value="{{hashtag}}" /><span>{{hashtag}}</span></label><br>
+
+              {% endfor %}
+
+            </fieldset>
+
+
+
+          </div>
+          <div class="form-group col-md-12">
+            <hr>
+            <select class="form-control" data-provide="selectpicker" name="sort">
+              <option value=""> SORT BY : </option>
+              <option name="a-z" value="age-a-z">AGE ( A-Z )</option>
+              <option name="z-a" value="age-z-a">AGE ( Z-A )</option>
+              <option name="a-z" value="distance-a-z">DISTANCE ( A-Z )</option>
+              <option name="z-a" value="distance-z-a">DISTANCE ( Z-A )</option>
+              <option name="a-z" value="popularity-a-z">POPULARITY ( A-Z )</option>
+              <option name="z-a" value="popularity-z-a">POPULARITY ( Z-A )</option>
+              <option name="a-z" value="hashtag-a-z">HASHTAG ( A-Z )</option>
+              <option name="z-a" value="hashtag-z-a">HASHTAG ( Z-A )</option>
+            </select>
+            <hr>
+          </div>
+
+          <button class="btn btn-w-md btn-round btn-secondary yellow_back" type="submit">Search</button>
+
+      </div>
+      </form>
+    </div>
+
+
+  </div>
+  </div>
+
+</main>
+
+<!-- Scripts -->
+<script>
+  $(document).ready(function () {
+
+    var socket = io.connect('http://127.0.0.1:5000');
+    socket.on('connect', function () {
+      socket.emit('online');
+    });
+
+
+
+    // # --------------------------------------------------------------------------------------------------
+    // # -------------------------------------#notif show -----------------------------------------------
+    // # --------------------------------------------------------------------------------------------------
+
+    socket.on('shownotif', function (data) {
+
+      app.toast(data['msg'], {
+        duration: 4000
+      });
+
+      $("#dot_notif").addClass('has-new')
+
+      var count = parseInt("{{count_vue_notif['COUNT(*)']}}") + 1;
+      ;
+      $("#count_notific").html(count);
+      if (data['type'] == 'like') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>Like from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unlike') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-warning"><i class="fa fa-thumbs-down"></i></span><div class="media-body"><p><strong>Unlike</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unlike from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'visit') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-purple"><i class="fa fa-eye"></i></span><div class="media-body"><p><strong>Visit</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Visit from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'block') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar badge-danger"><i class="fa fa-times-circle"></i></span><div class="media-body"><p><strong>Block</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Block from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'match') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-pink"><i class="fa fa-heart"></i></span><div class="media-body"><p><strong>Match</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Match from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'report') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-dark"><i class="fa fa-frown-o"></i></span><div class="media-body"><p><strong>Report</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Report from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unreport') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-secondary"><i class="fa fa-smile-o "></i></span><div class="media-body"><p><strong>Unreport</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unreport from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'chat') {
+        $("#dot_msg").addClass('has-new')
+
+        $("#notif_msg_list").prepend(' <a class="media media-new" > <span class="avatar  "> <img src="' + data['user_pic'] + '" ></span><div class="media-body"><p><strong>' + data['user_username'] + '</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>New message</p></div> </a>')
+      }
+
+    });
+
+
+
+
+    var first_click = true;
+    $('#notif').click(function (e) {
+      socket.emit('vuenotif', { 'notified': '{{ me.username }}' });
+      if (first_click) {
+        $("#dot_notif").removeClass('has-new')
+        first_click = false;
+      }
+      else {
+        $("#count_notific").html('0')
+      }
+
+    });
+
+    // ___________________________________________________
+
+
+
+    ' {% for hashtag in hashtags%}'
+    ' {% set hashtag = hashtag.replace("+","") %}'
+
+    $(".{{hashtag}}").click(function (e) {
+
+      if (".{{hashtag}}") {
+        $("#myhashtags").val($("#myhashtags").val() + '{{hashtag}}')
+
+      }
+      else {
+
+      }
+
+
+
+      $("#myhashtags").append('')
+
+    });
+
+    '{% endfor %}'
+
+  });
+</script>
+
+
+{% endblock %}

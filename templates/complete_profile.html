@@ -1,0 +1,327 @@
+{%extends "base.html" %}
+
+
+
+
+
+
+
+{% block content %}
+
+<!-- Main container -->
+<main class="background">
+
+  <header class="header bg-ui-general" style="background-image: url(../static/img/makethefirstmove3.png)">
+    <div class="header-info">
+      <h1 class=" text-black bold">
+        <strong>Complete</strong> your profile <br>
+        <small class="black">Complete your profile to help others get to know you .</small>
+      </h1>
+    </div>
+  </header>
+  <!--/.header -->
+
+
+  <div class="main-content">
+    <div class="row">
+      <div class="col-12">
+        <form class="card" action="{{ url_for('complete_profile') }}" method="post" enctype="multipart/form-data">
+
+
+          <div class="card-body">
+            <div class="flexbox gap-items-4">
+              <img class="avatar avatar-xl" src="../static/img/profile-user.png" alt="...">
+
+
+
+
+
+
+
+              <div class="flex-grow">
+
+                <div class="d-flex flex-column flex-sm-row gap-items-2 gap-y mt-16">
+                  <div class="file-group file-group-inline">
+                    <button class="btn btn-sm btn-w-lg btn-outline btn-round btn-secondary file-browser"
+                      type="button">Add Picture</button>
+                    <input type="file" name="profilepic" accept="image/*" capture>
+                  </div>
+
+
+                </div>
+
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="msg">{{msg}}</div>
+
+            <div class="row">
+
+              <div class="form-group col-md-6">
+
+                <select class="form-control" data-provide="selectpicker" name="gender">
+                  <option value="">Gender : </option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                </select>
+              </div>
+              <!-- <div class="form-group col-md-6">
+                      <label class="text-fader">First name</label>
+                      <input class="form-control" type="text">
+                    </div> -->
+
+              <div class="form-group col-md-6">
+
+                <select class="form-control" data-provide="selectpicker" name="preference">
+                  <option value="Bisexual">Preference : </option>
+                  <option value="Homosexual">Homosexual</option>
+                  <option value="Bisexual">Bisexual</option>
+                  <option value="Heterosexual">Heterosexual</option>
+                </select>
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label class="text-fader">Biography</label>
+              <textarea class="form-control" type="text" name="bio" placeholder="Bio"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="text-fader">Date of Birth</label>
+              <input class="form-control" type="date" name="date" value="">
+            </div>
+            <div class="form-group">
+              <label class="text-fader">Hashtags</label>
+
+              <input class="form-control" type="text" value="" data-provide="tagsinput" name="hashtag">
+            </div>
+
+            <div class="form-group ">
+              <label class="text-fader">Geolocation</label> <br>
+              <p id="wait" hidden>please wait ... </p>
+              <input class="form-control" type="text" value="" name="lat" id="lat" placeholder="Latitude">
+              <input class="form-control" type="text" value="" name="long" id="long" placeholder="Longitude">
+
+            </div>
+
+            <div class="media">
+              <div class="media-body">
+                <p>Allow MATCHA to access your location </p>
+              </div>
+
+              <label class="switch">
+                <input type="checkbox" id="location_btn">
+                <span class="switch-indicator"></span>
+              </label>
+            </div>
+
+
+
+            <hr>
+
+
+            <!--   
+                  <div class="row">
+                    <div class="form-group col-md-6">
+                        <label class="text-fader">Country</label>
+                        <select class="form-control" title="&#xA0;" data-provide="selectpicker">
+                          <option>United States</option>
+                          <option>Canada</option>
+                          <option>Mexico</option>
+                          <option>United Kingdom</option>
+                        </select>
+                      </div>
+  
+                    <div class="form-group col-md-6">
+                      <label class="text-fader">Phone</label>
+                      <input class="form-control" type="text">
+                    </div>
+                  </div> -->
+            <div class="row">
+              <div class="col-md-3">
+                <label class="text-fader">Image 1</label>
+                <input type="file" accept="image/*" data-provide="dropify" name="img1">
+              </div>
+              <div class="col-md-3">
+                <label class="text-fader">Image 2</label>
+                <input type="file" accept="image/*" data-provide="dropify" name="img2">
+              </div>
+              <div class="col-md-3">
+                <label class="text-fader">Image 3</label>
+                <input type="file" accept="image/*" data-provide="dropify" name="img3">
+              </div>
+              <div class="col-md-3">
+                <label class="text-fader">Image 4</label>
+                <input type="file" accept="image/*" data-provide="dropify" name="img4">
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+          <div class="card-body">
+            <button class="btn btn-round btn-bold btn-primary right" type="submit">Complete Profile</button>
+          </div>
+
+        </form>
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+  <!--/.main-content -->
+</main>
+
+
+<script>
+  $(document).ready(function () {
+
+    var socket = io.connect('http://127.0.0.1:5000');
+    socket.on('connect', function () {
+      socket.emit('online');
+    });
+
+
+
+    // # --------------------------------------------------------------------------------------------------
+    // # -------------------------------------#notif show -----------------------------------------------
+    // # --------------------------------------------------------------------------------------------------
+
+    socket.on('shownotif', function (data) {
+
+      app.toast(data['msg'], {
+        duration: 4000
+      });
+
+      $("#dot_notif").addClass('has-new')
+
+      var count = parseInt("{{count_vue_notif['COUNT(*)']}}") + 1;
+      ;
+      $("#count_notific").html(count);
+      if (data['type'] == 'like') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>Like from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unlike') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-warning"><i class="fa fa-thumbs-down"></i></span><div class="media-body"><p><strong>Unlike</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unlike from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'visit') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-purple"><i class="fa fa-eye"></i></span><div class="media-body"><p><strong>Visit</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Visit from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'block') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar badge-danger"><i class="fa fa-times-circle"></i></span><div class="media-body"><p><strong>Block</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Block from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'match') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-pink"><i class="fa fa-heart"></i></span><div class="media-body"><p><strong>Match</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Match from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'report') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-dark"><i class="fa fa-frown-o"></i></span><div class="media-body"><p><strong>Report</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Report from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unreport') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-secondary"><i class="fa fa-smile-o "></i></span><div class="media-body"><p><strong>Unreport</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unreport from ' + data['username_user'] + '</p></div>')
+      }
+
+    });
+
+
+
+
+    var first_click = true;
+    $('#notif').click(function (e) {
+      socket.emit('vuenotif', { 'notified': '{{ me.username }}' });
+      if (first_click) {
+        $("#dot_notif").removeClass('has-new')
+        first_click = false;
+      }
+      else {
+        $("#count_notific").html('0')
+      }
+
+    });
+
+    // ___________________________________________________
+
+    $("#location_btn").click(function (e) {
+      if ($("#location_btn").is(':checked')) {
+
+        navigator.permissions.query({ name: 'geolocation' })
+          .then(function (permissionStatus) {
+
+            navigator.geolocation.getCurrentPosition(function (position) {
+            });
+
+            if (permissionStatus.state == 'granted') {
+
+              navigator.geolocation.getCurrentPosition(function (position) {
+
+                $('#lat').val(position.coords.latitude);
+                $('#long').val(position.coords.longitude);
+
+              });
+            } else if (permissionStatus.state == 'denied') {
+              $('#lat').val('None');
+              $('#long').val('None');
+            }
+
+            permissionStatus.onchange = function () {
+
+              if (this.state == "granted") {
+
+                navigator.geolocation.getCurrentPosition(function (position) {
+
+                  $('#lat').val(position.coords.latitude);
+                  $('#long').val(position.coords.longitude);
+                });
+              } else if (this.state == "denied") {
+                $('#lat').val('None');
+                $('#long').val('None');
+              }
+
+            };
+
+
+
+
+          });
+      }
+      else {
+        $('#lat').val("None");
+        $('#long').val("None");
+      }
+
+    });
+
+  });
+</script>
+
+
+{% endblock %}

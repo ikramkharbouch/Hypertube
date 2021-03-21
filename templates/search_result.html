@@ -1,0 +1,209 @@
+{%extends "base.html" %}
+
+
+
+{% block content %}
+
+
+
+<main>
+
+  <div class="main-content">
+    <div class="row">
+
+
+
+
+
+
+
+
+
+
+
+
+      <!--
+      |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+      | users
+      |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+      !-->
+      {% if not users  %}
+      <div class="card card-body article">
+        <header class="text-center py-40">
+          <div class="gap-items-2 mb-30">
+            <span class="badge badge-pill badge-bold badge-secondary">Sorry</span>
+          </div>
+          <h1>No data found !</h1>
+          <hr class="w-50px">
+        </header>
+      </div>
+      {%endif%}
+      {% for user in users %}
+      {% if not user.id in blocks %}
+      {% if user.id != me.id %}
+      <div class="col-lg-6">
+        <a href="profile?id={{user.id}}">
+          <div class="card">
+            <div class="media bb-1 border-fade">
+              <img class="avatar avatar-lg" src="../static/img/profile-user.png" alt="...">
+              <div class="media-body">
+                <p>
+                  <strong class="fs-14">{{ user['username'] }}</strong>
+                  <strong class="fs-14">{{ user['id'] }}</strong>
+                  {% if user['id']  in users_list %}
+                  <time class="float-right text-lighter"><span class="badge badge-dot badge-success"></span>
+                    online</time>
+                  {% else %}
+                  <time class="float-right text-lighter"><span class="badge badge-dot  badge-danger"></span>
+                    &nbsp;{{user['status']}}</time>
+                  {% endif %}
+                </p>
+                <p><small>{{user['preference']}}</small></p>
+              </div>
+            </div>
+            <div class="card-body">
+
+              <div class="swiper-container"  >
+                <div class="swiper-wrapper">
+                  <div class="swiper-slide">
+                    <img src="{{user['img1']}}" alt="...">
+                  </div>
+
+                  
+                </div>
+
+                <div class="swiper-pagination"></div>
+              </div>
+        </a>
+
+
+        {% endif %}
+      </div>
+    </div>
+
+
+
+
+  </div>
+  {%endif%}
+  {% endfor %}
+
+
+
+
+
+
+
+  </div>
+  </div>
+  <!--/.main-content -->
+
+</main>
+<header class="header">
+
+
+  <div class="header-action">
+    <!-- <nav class="nav">
+      <a class="nav-link active" href="#">Profile</a>
+      <a class="nav-link" href="#">Messages <small>(2)</small></a>
+      <a class="nav-link d-none d-sm-block" href="#">Settings</a>
+    </nav> -->
+
+    <div class="buttons">
+      <!-- <a class="btn btn-danger btn-sm btn-float" href="#"><i class="ti-close"></i></a>
+      <a class="btn btn-info btn-sm btn-float" href="#"><i class="ti-pencil"></i></a> -->
+
+      {% if not page == 1 %}
+      <a class="btn btn-primary btn-float"
+        href="{{url_for('search_result', page=page-1, min_age=min_age, max_age=max_age, min_distance=min_distance, max_distance=max_distance, min_score=min_score, max_score=max_socre, hashtag=hashtag, sort=sort)}}"><i
+          class="fa fa-long-arrow-left"></i></a>
+      {%endif%}
+      <a class="btn btn-primary btn-float"
+        href="{{url_for('search_result', page=page+1, min_age=min_age, max_age=max_age, min_distance=min_distance, max_distance=max_distance, min_score=min_score, max_score=max_socre, hashtag=hashtag, sort=sort)}}"><i
+          class="fa fa-long-arrow-right"></i></a>
+    </div>
+  </div>
+</header>
+<hr>
+
+<!-- Scripts -->
+<script>
+  $(document).ready(function () {
+
+    var socket = io.connect('http://127.0.0.1:5000');
+    socket.on('connect', function () {
+      socket.emit('online');
+    });
+
+
+
+    // # --------------------------------------------------------------------------------------------------
+    // # -------------------------------------#notif show -----------------------------------------------
+    // # --------------------------------------------------------------------------------------------------
+
+    socket.on('shownotif', function (data) {
+
+      app.toast(data['msg'], {
+        duration: 4000
+      });
+
+      $("#dot_notif").addClass('has-new')
+
+      var count = parseInt("{{count_vue_notif['COUNT(*)']}}") + 1;
+      ;
+      $("#count_notific").html(count);
+      if (data['type'] == 'like') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>Like from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unlike') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-warning"><i class="fa fa-thumbs-down"></i></span><div class="media-body"><p><strong>Unlike</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unlike from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'visit') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-purple"><i class="fa fa-eye"></i></span><div class="media-body"><p><strong>Visit</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Visit from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'block') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar badge-danger"><i class="fa fa-times-circle"></i></span><div class="media-body"><p><strong>Block</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Block from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'match') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-pink"><i class="fa fa-heart"></i></span><div class="media-body"><p><strong>Match</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Match from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'report') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-dark"><i class="fa fa-frown-o"></i></span><div class="media-body"><p><strong>Report</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Report from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unreport') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-secondary"><i class="fa fa-smile-o "></i></span><div class="media-body"><p><strong>Unreport</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unreport from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'chat') {
+        $("#dot_msg").addClass('has-new')
+
+        $("#notif_msg_list").prepend(' <a class="media media-new" > <span class="avatar  "> <img src="' + data['user_pic'] + '" ></span><div class="media-body"><p><strong>' + data['user_username'] + '</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>New message</p></div> </a>')
+      }
+
+    });
+
+
+
+
+    var first_click = true;
+    $('#notif').click(function (e) {
+      socket.emit('vuenotif', { 'notified': '{{ me.username }}' });
+      if (first_click) {
+        $("#dot_notif").removeClass('has-new')
+        first_click = false;
+      }
+      else {
+        $("#count_notific").html('0')
+      }
+
+    });
+
+
+
+    // ----------------------------------------------
+
+
+  });
+</script>
+
+
+{% endblock %}

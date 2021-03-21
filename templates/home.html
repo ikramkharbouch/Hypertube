@@ -1,0 +1,301 @@
+{%extends "base.html" %}
+
+
+
+
+
+
+
+{% block content %}
+<!-- Main container -->
+<main>
+
+
+
+  <div class="">
+    <div class="">
+
+
+      <div class="card-body">
+
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs">
+          <!-- <p style="margin-right:5em;">Filter by : </p > <br> -->
+          <li class="nav-item">
+            <strong> <a class="nav-link   ">Filter by :</a></strong>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link   " href="/home">ALL</a>
+          </li>
+
+          <li class="nav-item">
+            {% if filterr == None %}
+
+            <a class="nav-link " href="/home?filterr=age&sort=az">A-Z</a>
+            {% else %}
+
+            <a class="nav-link " href="/home?filterr={{ filterr }}&sort=az">A-Z</a>
+            {% endif %}
+          </li>
+          <li class="nav-item">
+            {% if filterr == None %}
+
+            <a class="nav-link" href="/home?filterr=age&sort=za">Z-A</a>
+            {% else %}
+            <a class="nav-link " href="/home?filterr={{ filterr }}&sort=za">Z-A</a>
+            {% endif %}
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/home?filterr=age">Age</a>
+
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/home?filterr=Distance">Distance</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/home?filterr=Popularity">Popularity</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/home?filterr=Interests">Interests</a>
+          </li>
+
+
+
+        </ul>
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Main container -->
+  <main class="background">
+
+
+    <!-- NOTIIIF BUTTN -->
+    <button class="btn btn-primary" id="notif" hidden> {{count_vue_notif['COUNT(*)']}}</button>
+
+
+
+
+    <div class="main-content">
+      <div class="row">
+
+
+
+
+
+
+
+
+
+
+
+
+        <!--
+        |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+        | users
+        |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+        !-->
+        {% for user in users %}
+        {% if not user.id in blocks %}
+        <div class="col-lg-3">
+          <a href="/profile?id={{user.id}}">
+            <div class="card">
+              <div class="media bb-1 border-fade">
+                <img class="avatar avatar-lg" src="{{user['profile_pic']}}" alt="...">
+                <div class="media-body">
+                  <p>
+                    <strong class="fs-14">{{ user['username'] }}</strong>
+
+                    {% if user['id']  in users_list %}
+                    <time class="float-right text-lighter"><span class="badge badge-dot badge-success"></span>
+                      online</time>
+                    {% else %}
+                    <time class="float-right text-lighter"><span class="badge badge-dot  badge-danger"></span>
+                      &nbsp;{{user['status']}}</time>
+                    {% endif %}
+                  </p>
+                  <p><small>{{user['preference']}}</small></p>
+                </div>
+              </div>
+              <div class="card-body">
+
+                <div class="swiper-container">
+                  <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                      <img src="{{user['img1']}}" width="496px">
+                    </div>
+
+
+                  </div>
+
+                  <div class="swiper-pagination"></div>
+                </div>
+          </a>
+          <br>
+
+          {% if user['id'] in found_like%}
+          <button style="font-weight: bold;" class="like-unlike btn  btn-bold btn-primary  btn-danger"
+            userid="{{ user['id'] }}" value="Unlike"> ✘ Unlike</button>
+          {%else%}
+          <button style="font-weight: bold;" class="like-unlike btn  btn-bold btn-primary  btn-danger"
+            userid="{{ user['id'] }}" value="Like"> ❤ Like</button>
+
+          {% endif %}
+        </div>
+      </div>
+
+
+
+
+    </div>
+    {%endif%}
+    {% endfor %}
+
+
+
+
+
+
+
+    </div>
+    </div>
+    <!--/.main-content -->
+
+
+
+  </main>
+  <hr>
+  <header class="header">
+
+
+    <div class="header-action">
+
+
+      <div class="buttons">
+        {% set urll = (request.full_path.replace('/home','')) %}
+        {%if (urll.find('?') != -1) %}
+        {% set urll = urll[urll.find('?'): urll | length]%}
+        {%endif%}
+
+        {% if not page == 1 %}
+
+        {% set path1 = "/home/"  ~ (page-1) %}
+        <a class="btn btn-primary btn-float" href="{{path1}}{{urll}}"><i class="fa fa-long-arrow-left"></i></a>
+        {%endif%}
+        {% set path2 = "/home/"  ~ (page+1)%}
+        <a class="btn btn-primary btn-float" href="{{path2}}{{urll}}"><i class="fa fa-long-arrow-right"></i></a>
+
+      </div>
+    </div>
+  </header>
+
+  <hr>
+  <!-- Scripts -->
+  <script>
+
+    $(document).ready(function () {
+
+      var socket = io.connect('http://127.0.0.1:5000');
+      socket.on('connect', function () {
+        socket.emit('online');
+      });
+
+
+
+      // # --------------------------------------------------------------------------------------------------
+      // # -------------------------------------#notif show -----------------------------------------------
+      // # --------------------------------------------------------------------------------------------------
+
+      socket.on('shownotif', function (data) {
+
+        app.toast(data['msg'], {
+          duration: 4000
+        });
+
+        $("#dot_notif").addClass('has-new')
+
+        var count = parseInt("{{count_vue_notif['COUNT(*)']}}") + 1;
+        ;
+        $("#count_notific").html(count);
+        if (data['type'] == 'like') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>Like from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'unlike') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-warning"><i class="fa fa-thumbs-down"></i></span><div class="media-body"><p><strong>Unlike</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unlike from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'visit') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-purple"><i class="fa fa-eye"></i></span><div class="media-body"><p><strong>Visit</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Visit from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'block') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar badge-danger"><i class="fa fa-times-circle"></i></span><div class="media-body"><p><strong>Block</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Block from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'match') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-pink"><i class="fa fa-heart"></i></span><div class="media-body"><p><strong>Match</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Match from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'report') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-dark"><i class="fa fa-frown-o"></i></span><div class="media-body"><p><strong>Report</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Report from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'unreport') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-secondary"><i class="fa fa-smile-o "></i></span><div class="media-body"><p><strong>Unreport</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unreport from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'chat') {
+          $("#dot_msg").addClass('has-new')
+
+          $("#notif_msg_list").prepend(' <a class="media media-new" > <span class="avatar  "> <img src="' + data['user_pic'] + '" ></span><div class="media-body"><p><strong>' + data['user_username'] + '</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>New message</p></div> </a>')
+        }
+      });
+
+
+
+
+      var first_click = true;
+      $('#notif').click(function (e) {
+        socket.emit('vuenotif', { 'notified': '{{ me.username }}' });
+        if (first_click) {
+          $("#dot_notif").removeClass('has-new')
+          first_click = false;
+        }
+        else {
+          $("#count_notific").html('0')
+        }
+
+      });
+
+
+
+      // ----------------------------------------------
+      $(".like-unlike").click(function (e) {
+        if ($(this).val() == 'Like') {
+
+          $(this).val('Unlike');
+          $(this).html('✘ Unlike');
+
+          var id = e.target.attributes.userid.value;
+
+          socket.emit('like_notif', { 'me': '{{ me.id }}', 'user_id': id });
+
+        }
+        else {
+
+          $(this).val('Like');
+          $(this).html('❤ Like');
+
+          var id = e.target.attributes.userid.value;
+
+          socket.emit('like_notif', { 'me': '{{ me.id }}', 'user_id': id });
+
+        }
+        // return false;
+      });
+
+
+
+
+
+    });
+  </script>
+
+  {% endblock %}

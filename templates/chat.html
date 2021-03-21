@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Responsive admin dashboard and web application ui kit. ">
+  <meta name="keywords" content="login, signin">
+
+  <title> Matcha </title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,300i" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='/css/core.min.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='/css/app.min.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='/css/style.min.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='/css/style.css')}}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="../static/js/socket.js" crossorigin="anonymous"></script>
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css"> -->
+
+
+
+  <!-- Favicons -->
+  <!-- <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+    <link rel="icon" href="../assets/img/favicon.png"> -->
+</head>
+
+<body>
+
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+
+      <a href="{{url_for('home')}}"></a> <img src="../static/img/logo.png" alt="" style="width: 40px; height: 45px;">
+      </a>
+      &nbsp;&nbsp;&nbsp; <a href="{{url_for('home')}}">
+        <h3 class="topbar-title yellow_color"> Matcha </h3>
+      </a>
+
+
+
+
+    </div>
+    <div class="topbar-right">
+      <ul class="topbar-btns">
+        <li class="dropdown">
+          {% if not me %}
+          <span class="topbar-btn" data-toggle="dropdown"><img class="avatar avatar-sm"
+              src="../static/img/profile-user.png" alt="..."></span>
+          {%else%}
+          <a href="{{ url_for('edit_profile') }}"> <span class="topbar-btn"><img class="avatar avatar-sm"
+                src="{{me.profile_pic}}"></span></a>
+          {%endif%}
+
+        </li>
+
+        <li>
+          <a href="{{ url_for('logout') }}"> <span class="topbar-btn"><i class="fa fa-power-off"></i></span></a>
+        </li>
+        <li>
+          <a href="{{ url_for('edit_profile') }}"> <span class="topbar-btn"><i class="fa fa-user"></i></span></a>
+        </li>
+        <!-- Notifications -->
+        <li class="dropdown" id=notif>
+          {% if count_vue_notif['COUNT(*)'] != 0%}
+          <span id="dot_notif" class="topbar-btn has-new" data-toggle="dropdown"><i class="fa fa-bell-o"></i></span>
+          {% else %}
+          <span id="dot_notif" class="topbar-btn " data-toggle="dropdown"><i class="fa fa-bell-o"></i></span>
+          {%endif%}
+
+
+
+          <div id="notif_list" class="dropdown-menu dropdown-menu-right">
+            <!-- <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">dfdff</time></p><p>Like from fdf</p></div> -->
+            <center>
+              <p>New notification : <span id="count_notific"
+                  class=" count_show badge  badge-pill badge-danger">{{count_vue_notif['COUNT(*)']}}</span>
+                <p></p>
+            </center>
+            <div class="media-list media-list-divided media-list-hover scrollable" style="height: 280px">
+              {% for notif in notification %}
+              {% if notif.type != 'message'%}
+              {% if notif.vue == 0 %}
+              <a class="media media-new">
+                {% elif notif.vue == 1 %}
+                <a class="media">
+                  {%endif%}
+
+                  {% if notif.type == 'like'%}
+                  <span class="avatar bg-success">
+                    <i class="fa fa-thumbs-up"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>You were liked by {{notif.notifier}}</p>
+                  </div>
+                  {% elif notif.type == 'unlike'%}
+                  <span class="avatar bg-warning">
+                    <i class="fa fa-thumbs-down"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>You were unliked by {{notif.notifier}}</p>
+                  </div>
+                  {% elif notif.type == 'visit'%}
+                  <span class="avatar bg-purple">
+                    <i class="fa fa-eye"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>Your profile was visited by {{notif.notifier}}</p>
+                  </div>
+                  {% elif notif.type == 'block'%}
+                  <span class="avatar badge-danger">
+                    <i class="fa fa-times-circle" style="color: aliceblue;"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>Your were blocked by {{notif.notifier}}</p>
+                  </div>
+                  {% elif notif.type == 'unblocks'%}
+                  <span class="avatar badge-dark">
+                    <i class="fa fa-times-circle" style="color: aliceblue;"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>Your were unblocked by {{notif.notifier}}</p>
+                  </div>
+                  {% elif notif.type == 'match'%}
+                  <span class="avatar bg-pink">
+                    <i class="fa fa-heart" style="color: aliceblue;"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>Your were matched with {{notif.notifier}}</p>
+                  </div>
+                  {% elif notif.type == 'report'%}
+                  <span class="avatar bg-dark">
+                    <i class="fa fa-frown-o" style="color: aliceblue;"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>Your were reported by {{notif.notifier}}</p>
+                  </div>
+                  {% elif notif.type == 'unreport'%}
+                  <span class="avatar bg-secondary">
+                    <i class="fa fa-smile-o " style="color:black;"></i>
+                  </span>
+                  <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>Your were unreported by {{notif.notifier}}</p>
+                  </div>
+                  {%endif%}
+
+                  <!-- <div class="media-body">
+                    <p><strong>{{notif.type}}</strong> <time class="float-right"
+                        datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+                    <p>{{notif.type}} from {{notif.notifier}}</p>
+                  </div> -->
+                  {%endif%}
+                </a>
+                {% endfor %}
+
+
+
+
+
+
+
+            </div>
+
+
+
+          </div>
+        </li>
+
+
+
+
+
+        <!-- Messages -->
+        <li class="dropdown">
+          <span class="topbar-btn" data-toggle="dropdown"><i class="fa fa-envelope-o"></i></span>
+          <div class="dropdown-menu dropdown-menu-right">
+
+            <div class="media-list media-list-divided media-list-hover scrollable" style="height: 280px">
+              {% for notif in notification %}
+              {% if notif.type == 'message'%}
+
+              <a class="media media-new" href="{{url_for('chat', id = notif.id_notifier )}}">
+                {% set data_notifier = notif.id_notifier | data_prof %}
+                {% if data_notifier.id  in users_list %}
+                <span class="avatar status-success">
+                  <img src="{{data_notifier.profile_pic}}" alt="...">
+                </span>
+                {% else %}
+                <span class="avatar status-danger">
+
+                  <img src="{{data_notifier.profile_pic}}" alt="...">
+                </span>
+                {% endif %}
+
+                <div class="media-body">
+                  <p><strong>{{notif.notifier}}</strong> <time class="float-right"
+                      datetime="2017-07-14 20:00">{{notif.time}}</time></p>
+
+                  <p>New message</p>
+                </div>
+              </a>
+              {%endif%}
+              {%endfor%}
+
+
+
+
+
+            </div>
+
+
+
+          </div>
+        </li>
+        <!-- END Messages -->
+        <li>
+          <a href="{{ url_for('search') }}"> <span class="topbar-btn"><i class="fa fa-search"></i></span></a>
+        </li>
+      </ul>
+
+    </div>
+  </header>
+
+
+  <!-- <IfModule mod_headers.c>  
+  Header set X-XSS-Protection "1; mode=block"  
+</IfModule>  -->
+  <main class="layout-chat">
+
+    <!-- Page aside -->
+    <aside class="aside aside-lg aside-expand-lg">
+      <div class="aside-body pt-0">
+        <div class="media-list media-list-divided media-list-hover">
+          <!-- 
+        <header class="media-list-header b-0">
+          <form class="lookup lookup-lg w-100 bb-1 border-light">
+            <input class="w-100 no-radius no-border py-30" type="text" placeholder="Search..."
+              data-provide="media-search">
+          </form>
+        </header> -->
+
+          <div class="media-list-body">
+
+            {% for friend in match %}
+            {% if friend and friend.id != me.id %}
+            <a class="media align-items-center active" href="profile?id={{friend.id}}">
+              {% if data_profile.id  in users_list %}
+              <span class="avatar status-success">
+                {% else %}
+                <span class="avatar status-danger">
+                  {% endif %}
+                  <img src="{{friend.profile_pic}}" alt="...">
+                </span>
+                <div class="media-body">
+                  <div class="flexbox align-items-center">
+                    <strong class="title">{{friend.username}}</strong>
+
+                  </div>
+
+                </div>
+            </a>
+            {%endif%}
+            {%endfor%}
+
+
+          </div>
+
+        </div>
+      </div>
+
+      <button class="aside-toggler btn-danger"></button>
+    </aside>
+    <!-- END Page aside -->
+    <!-- --------------------------------------------------------------------------------------------------------------------------------- -->
+    <!-- --------------------------------------------------------------------------------------------------------------------------------- -->
+    <div class="main-content scrollable">
+
+
+      <div class="card card-bordered flex-column col-12">
+
+
+
+        <!--
+          |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+          | Chat header
+          |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+          !-->
+        <header class="flexbox align-items-center p-12 pr-20 bg-lighter bb-1 border-light" style="border-radius: 25px;">
+          <div class="media align-items-center p-0">
+            <a href="profile?id={{data_profile.id}}"><img class="avatar" src="{{data_profile.profile_pic}}"
+                alt="..."></a>
+            <div class="media-body">
+              <h6><a href="profile?id={{data_profile.id}}">{{data_profile.username}}</a></h6>
+
+              <small>
+                {% if data_profile.id  in users_list %}
+                <time class="float-right text-lighter"><span class="badge badge-dot badge-success"></span>
+                  online</time>
+                {% else %}
+                <time class="float-right text-lighter"><span class="badge badge-dot  badge-danger"></span>
+                  &nbsp;{{data_profile['status']}}</time>
+                {% endif %}
+              </small>
+
+              <br>
+
+
+
+
+
+
+
+
+            </div>
+          </div>
+
+          <div class="dropdown">
+            <a class="text-lighter" data-toggle="dropdown" href="#"><i class="fa fa-ellipsis-v"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item" href="profile?id={{data_profile.id}}"><i class="fa fa-fw fa-user"></i>
+                Profile</a>
+              <a class="dropdown-item" id="block"><i class="fa fa-ban"></i> Block</a>
+
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" id="delete"><i class="fa fa-fw fa-trash"></i> Delete Conversation </a>
+            </div>
+          </div>
+        </header>
+
+
+
+
+
+        <!--
+          |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+          | Chat content
+          |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+          !-->
+        <div class="scrollable flex-grow" id="chat-content" data-provide="emoji">
+
+          {% for msg in all_msg %}
+
+          {% if msg.sender ==  me.id %}
+
+          <div class="media media-chat media-chat-reverse">
+            <div class="media-body">
+              {% set msg_show = msg.msg | decode_msg %}
+              <p>{{msg_show}}</p>
+              <p class="meta"><time datetime="2017">{{msg.time}}</time></p>
+            </div>
+          </div>
+
+          {% else %}
+
+
+          <div class="media media-chat">
+            <img class="avatar" src="{{data_profile.profile_pic}}" alt="...">
+            <div class="media-body">
+              {% set msg_show = msg.msg | decode_msg %}
+              <p>{{msg_show}}</p>
+              <p class="meta"><time datetime="2017">{{msg.time}}</time></p>
+            </div>
+          </div>
+
+
+
+          {% endif %}
+
+
+          {% endfor %}
+
+        </div>
+
+
+
+
+
+        <!--
+          |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+          | Chat footer
+          |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+          !-->
+        <footer class="publisher">
+          <img class="avatar align-self-start" src="{{me.profile_pic}}" alt="...">
+          <input class="publisher-input" id="msg" rows="1" placeholder="Write something">
+          <div class="align-self-end gap-items">
+            <!-- <span class="publisher-btn file-group">
+                <i class="fa fa-paperclip file-browser"></i>
+                <input type="file">
+              </span> -->
+            <!-- <a class="publisher-btn" href="#"><i class="fa fa-smile-o"></i></a> -->
+            <!-- <a class="publisher-btn" href="#" id='send_msg'><i class="fa fa-paper-plane"></i></a> -->
+          </div>
+        </footer>
+      </div>
+
+    </div>
+    <!--/.main-content -->
+
+
+
+
+
+  </main>
+
+
+
+
+
+
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="row">
+      <div class="col-md-6">
+        <p class="text-center text-md-left">Copyright © 2021 <a href="#">MATCHA</a>. All rights reserved.</p>
+      </div>
+
+      <div class="col-md-6">
+        <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
+          <li class="nav-item">
+            <a class="nav-link" href="">Documentation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="">FAQ</a>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <!-- END Footer -->
+
+
+
+  <!-- Scripts -->
+  <script>
+    $(document).ready(function () {
+
+      var socket = io.connect('http://127.0.0.1:5000');
+      socket.on('connect', function () {
+        socket.emit('online');
+      });
+
+
+
+      socket.on('shomsg', function (data) {
+        var dt = new Date();
+        var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+        var content = '<div class="media media-chat"><img class="avatar" src=" {{data_profile.profile_pic}}  " alt="..."><div class="media-body"><p>' + data['msg'] + '</p><p class="meta"><time datetime="2017">' + time + '</time></p></div></div> '
+        $("#chat-content").append(content);
+        $('#chat-content').scrollToEnd();
+
+
+      });
+      $('#msg').keypress(function (event) {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+
+        if (keycode == '13') {
+          if ($(this).val()) {
+            var dt = new Date();
+            var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+            var msg_value_show = escapeHtml($("#msg").val());
+            var msg_value = $("#msg").val();
+            var content = '<div class="media media-chat media-chat-reverse"><div class="media-body"><p>' + msg_value_show + '</p><p class="meta"><time datetime="2017">' + time + '</time></p></div></div> '
+            $("#chat-content").append(content);
+            $('#chat-content').scrollToEnd();
+            $("#msg").val('');
+            socket.emit('chat', { 'id_profile': '{{data_profile.id}}', 'msg': msg_value })
+          }
+        }
+        //Stop the event from propogation to other handlers
+        //If this line will be removed, then keypress event handler attached 
+        //at document level will also be triggered
+        // event.stopPropagation();
+      });
+      // Scoll to the end of chat content
+      $('#chat-content').scrollToEnd();
+
+
+
+      socket.on('blockinchat', function () {
+        location.reload();
+      });
+      function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      }
+      // $("#send_msg").click(function (e) {
+      //   if ($(this).val()) {
+      //     var dt = new Date();
+      //     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+      //     var msg_value_show = escapeHtml($("#msg").val());
+      //     var msg_value = $("#msg").val();
+      //     var content = '<div class="media media-chat media-chat-reverse"><div class="media-body"><p>' + msg_value_show + '</p><p class="meta"><time datetime="2017">' + time + '</time></p></div></div> '
+      //     $("#chat-content").append(content);
+      //     $('#chat-content').scrollToEnd();
+      //     $("#msg").val('');
+      //     socket.emit('chat', { 'id_profile': '{{data_profile.id}}', 'msg': msg_value })
+      //   }
+      // });
+
+
+
+      $("#block").click(function (e) {
+
+        socket.emit('block', { 'me': '{{ me.id }}', 'user_id': '{{data_profile.id}}', 'me_username': '{{ me.username }}' });
+      });
+      $("#delete").click(function (e) {
+
+        socket.emit('delete_conv', { 'me': '{{ me.id }}', 'user_id': '{{data_profile.id}}' });
+        location.reload();
+      });
+
+
+      // # --------------------------------------------------------------------------------------------------
+      // # -------------------------------------#notif show -----------------------------------------------
+      // # --------------------------------------------------------------------------------------------------
+
+      socket.on('shownotif', function (data) {
+
+        if (data['type'] != 'chat') {
+          app.toast(data['msg'], {
+            duration: 4000
+          });
+        }
+
+        $("#dot_notif").addClass('has-new')
+
+        var count = parseInt("{{count_vue_notif['COUNT(*)']}}") + 1;
+        ;
+        $("#count_notific").html(count);
+        if (data['type'] == 'like') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>Like from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'unlike') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-warning"><i class="fa fa-thumbs-down"></i></span><div class="media-body"><p><strong>Unlike</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unlike from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'visit') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-purple"><i class="fa fa-eye"></i></span><div class="media-body"><p><strong>Visit</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Visit from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'block') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar badge-danger"><i class="fa fa-times-circle"></i></span><div class="media-body"><p><strong>Block</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Block from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'match') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-pink"><i class="fa fa-heart"></i></span><div class="media-body"><p><strong>Match</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Match from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'report') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-dark"><i class="fa fa-frown-o"></i></span><div class="media-body"><p><strong>Report</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Report from ' + data['username_user'] + '</p></div>')
+        }
+        else if (data['type'] == 'unreport') {
+          $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-secondary"><i class="fa fa-smile-o "></i></span><div class="media-body"><p><strong>Unreport</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unreport from ' + data['username_user'] + '</p></div>')
+        }
+
+      });
+
+
+
+
+      var first_click = true;
+      $('#notif').click(function (e) {
+        socket.emit('vuenotif', { 'notified': '{{ me.username }}' });
+        if (first_click) {
+          $("#dot_notif").removeClass('has-new')
+          first_click = false;
+        }
+        else {
+          $("#count_notific").html('0')
+        }
+
+      });
+
+
+    });
+  </script>
+
+  <script src="{{ url_for('static', filename='js/core.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/app.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/script.min.js')}}"></script>
+
+</body>
+
+</html>

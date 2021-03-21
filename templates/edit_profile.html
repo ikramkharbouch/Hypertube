@@ -1,0 +1,533 @@
+{%extends "base.html" %}
+
+
+
+{% block content %}
+
+
+
+
+<main>
+  <div class="">
+    <div class="">
+
+
+      <div class="card-body">
+
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active " style="background-color: transparent;" data-toggle="tab" href="#home-basic">Edit
+              profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#qv-block" data-toggle="quickview" href="#profile-basic">Blocked users</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="quickview" href="#qv-match">Matched users</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="quickview" href="#qv-visit">Profile visitors</a>
+          </li>
+
+        </ul>
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <div class="main-content">
+    <div class="row">
+
+      <div class="col-12">
+        <form class="card" action="{{ url_for('edit_profile') }}" method="POST" autocomplete="off"
+          enctype="multipart/form-data">
+          <h4 class="card-title"><strong>Account</strong></h4>
+
+          <div class="card-body">
+            <div class="row">
+              <div class="flexbox gap-items-4 col-md-12">
+                <img class="avatar avatar-xl" src="{{data_myprofile.profile_pic}}" alt="...">
+
+                <div class="flex-grow">
+                  <h5>{{data_myprofile.username}}</h5>
+                  <div class="d-flex flex-column flex-sm-row gap-items-2 gap-y mt-16">
+                    <div class="file-group file-group-inline">
+                      <button class="btn btn-sm btn-w-lg btn-outline btn-round btn-secondary file-browser"
+                        type="button">Change Picture</button>
+                      <input type="file" name="profilepic" accept="image/*" capture>
+                    </div>
+
+                    <a class="btn btn-sm btn-w-lg btn-outline btn-round btn-danger" id="delete_pic">Delete Picture</a>
+                  </div>
+                  <br><br> <br>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <h5 class="text-light fw-400">Account Information</h5>
+
+                <div class="row">
+                  <h1>{{msg}}</h1>
+                </div>
+                <br>
+                <div class="row">
+                  <div class="form-group col-md-6">
+                    <label class="text-fader">First name</label>
+
+                    <input class="form-control" type="text" name="firstname" value="{{data_myaccount.firstname}}">
+                  </div>
+
+                  <div class="form-group col-md-6">
+                    <label class="text-fader">Last name</label>
+                    <input class="form-control" type="text" name="lastname" value="{{data_myaccount.lastname}}">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="text-fader">Username</label>
+                  <input class="form-control" type="text" name="username" value="{{data_myprofile.username}}">
+                </div>
+
+                <div class="form-group">
+                  <label class="text-fader">Email</label>
+                  <input class="form-control" type="text" name="email" value="{{data_myaccount.email}}">
+                </div>
+
+
+
+                <br>
+                <div class="form-group  ">
+                  <label class="text-fader">Biography</label>
+                  <textarea class="form-control" name="bio" placeholder="{{data_myprofile.bio}}"
+                    value="{{data_myprofile.bio}}" cols="30" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+
+
+                  <h4>Location</h4>
+                  <strong> <label class="text-fader">Latitude </label></strong>
+                  <input class="form-control" type="text" name="lat" id="lat" value="{{data_myprofile.lat}}">
+                </div>
+                <div class="form-group">
+                  <label class="text-fader">Longitude </label>
+                  <input class="form-control" type="text" name="long" id="long" value="{{data_myprofile.lon}}">
+                </div>
+                <a class="btn btn-primary" id="location_btn">Get current location</a>
+                <div class="form-group">
+                  <label class="text-fader">Hashtags</label>
+
+                  <input class="form-control" type="text" value="{{input_hashtag}}" data-provide="tagsinput"
+                    name="hashtag">
+
+
+
+                </div>
+
+
+
+
+
+              </div>
+
+
+              <div class="col-md-6">
+                <h5 class="text-light fw-400">Change Password</h5>
+                <br>
+                <div class="form-group">
+                  <label class="text-fader">Old password</label>
+                  <input class="form-control" type="password" name="old_password" placeholder="************">
+                </div>
+                <div class="form-group">
+                  <label class="text-fader">New password</label>
+                  <input class="form-control" type="password" name="password" placeholder="************">
+                </div>
+
+                <div class="form-group">
+                  <label class="text-fader">Confirm new password</label>
+                  <input class="form-control" type="password" name="confrim_password" placeholder="************">
+                </div>
+
+                <br>
+                <h5 class="text-light fw-400">&nbsp;</h5>
+
+
+
+
+                <h5 class="text-light fw-400">Personal Information </h5>
+                <br>
+
+                <div class="form-group">
+
+                  <select class="form-control" data-provide="selectpicker" name="preference">
+                    <option value="{{ me['preference'] }}">Preference : {{ me['preference'] }} </option>
+                    <option value="Homosexual">Homosexual</option>
+                    <option value="Bisexual">Bisexual</option>
+                    <option value="Heterosexual">Heterosexual</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+
+                  <select class="form-control" data-provide="selectpicker" name="gender">
+                    <option value="{{ me['gender'] }}">Gender : {{ me.gender }}</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="text-fader">Date Birth</label>
+                  <p>Your age is : {{ me['age'] }}</p>
+                  <p>You can modify from here </p>
+                  <input class="form-control" type="date" name="datebirth">
+                </div>
+
+
+
+
+                <br>
+                <h5 class="text-light fw-400">&nbsp;</h5>
+                <br>
+
+
+
+              </div>
+
+              <div class="row">
+                <div class="row gap-y gap-2" data-provide="">
+                  <a class="  col-6 col-lg-3" href="#">
+                    <img src="{{me.img1}}" data-original-src="{{me.img1}}">
+                  </a>
+
+                  <a class="col-6 col-lg-3" href="#">
+                    <img src="{{me.img2}}" data-original-src="{{me.img2}}">
+                  </a>
+
+                  <a class="col-6 col-lg-3" href="#">
+                    <img src="{{me.img3}}" data-original-src="{{me.img3}}">
+                  </a>
+
+                  <a class="col-6 col-lg-3" href="#">
+                    <img src="{{me.img4}}" data-original-src="{{me.img4}}">
+                  </a>
+                </div>
+              </div>
+              <div class="row">
+
+                <div class="col-md-3">
+                  <label class="text-fader">Image 1</label>
+                  <input type="file" accept="image/*" data-provide="dropify" name="img1">
+                </div>
+                <div class="col-md-3">
+                  <label class="text-fader">Image 2</label>
+                  <input type="file" accept="image/*" data-provide="dropify" name="img2">
+                </div>
+                <div class="col-md-3">
+                  <label class="text-fader">Image 3</label>
+                  <input type="file" accept="image/*" data-provide="dropify" name="img3">
+                </div>
+                <div class="col-md-3">
+                  <label class="text-fader">Image 4</label>
+                  <input type="file" accept="image/*" data-provide="dropify" name="img4">
+                </div>
+              </div>
+              <div class="col-md-12">
+                <br>
+                <hr>
+                <button class="btn btn-block btn-primary" type="submit">Save Changes</button>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+
+    </form>
+  </div>
+
+
+
+
+  <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!-- Quickviews -->
+
+  <!-- blocked users -->
+  <div id="qv-block" class="quickview">
+    <header class="quickview-header">
+      <p class="quickview-title lead">Blocked users</p>
+      <span class="close"><i class="fa fa-close"></i></span>
+    </header>
+
+    <div class="quickview-body">
+      <div class="media-list media-list-divided media-list-hover">
+
+        <!-- {{blocked_user}} -->
+        {% for i in blocked_user %}
+
+        {%if i.id_blocked != data_myprofile.id%}
+        {% set username = i.id_blocked | data_prof %}
+        <div class="media">
+          <div class="media-body">
+
+
+            <p><strong>{{username.username}}</strong></p>
+
+
+          </div>
+          <label class="switch">
+            <a> <button class="unblock btn btn-w-md   btn-primary" userid="{{ username.id }}"><i class="fa fa-ban"></i>
+                unblock </button> </a>
+          </label>
+        </div>
+        {%endif%}
+        {%endfor%}
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- matched users -->
+  <div id="qv-match" class="quickview">
+    <header class="quickview-header">
+      <p class="quickview-title lead">Matched users</p>
+      <span class="close"><i class="fa fa-close"></i></span>
+    </header>
+
+    <div class="quickview-body">
+      <div class="media-list media-list-divided media-list-hover">
+        {% set match = data_myprofile.id | matching %}
+
+        {% for i in match %}
+        {% if not i.id in blocks %}
+        {%if i.id != data_myprofile.id and i != None %}
+
+        <a class="media align-items-center active" href="{{url_for('profile', id=i.id)}}">
+          <span class="avatar status-success">
+            <img src="{{i.profile_pic}}" alt="...">
+          </span>
+          <div class="media-body">
+            <div class="flexbox align-items-center">
+
+              <strong class="title">{{i.username}}</strong>
+            </div>
+
+          </div>
+        </a>
+        {%endif%}
+        {%endif%}
+        {%endfor%}
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- visitors users -->
+  <div id="qv-visit" class="quickview">
+    <header class="quickview-header">
+      <p class="quickview-title lead">Matched users</p>
+      <span class="close"><i class="fa fa-close"></i></span>
+    </header>
+
+    <div class="quickview-body">
+      <div class="media-list media-list-divided media-list-hover">
+        {% set visits = data_myprofile.id | visit_profile %}
+        <!-- {{visits}} -->
+        {% for i in visits %}
+
+        {% set data_user = i.id_notifier | data_prof  %}
+
+        <a class="media align-items-center active" href="{{url_for('profile', id=data_user.id)}}">
+          <span class="avatar status-success">
+            <img src="{{data_user.profile_pic}}" alt="...">
+          </span>
+          <div class="media-body">
+            <div class="flexbox align-items-center">
+
+              <strong class="title">{{data_user.username}}</strong>
+            </div>
+
+          </div>
+        </a>
+
+        {%endfor%}
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+</main>
+
+
+
+
+
+
+<script>
+  $(document).ready(function () {
+
+    var socket = io.connect('http://127.0.0.1:5000');
+    socket.on('connect', function () {
+      socket.emit('online');
+    });
+
+
+
+    // # --------------------------------------------------------------------------------------------------
+    // # -------------------------------------#notif show -----------------------------------------------
+    // # --------------------------------------------------------------------------------------------------
+
+    socket.on('shownotif', function (data) {
+
+      app.toast(data['msg'], {
+        duration: 4000
+      });
+
+      $("#dot_notif").addClass('has-new')
+
+      var count = parseInt("{{count_vue_notif['COUNT(*)']}}") + 1;
+      ;
+      $("#count_notific").html(count);
+      if (data['type'] == 'like') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>Like from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unlike') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-warning"><i class="fa fa-thumbs-down"></i></span><div class="media-body"><p><strong>Unlike</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unlike from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'visit') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-purple"><i class="fa fa-eye"></i></span><div class="media-body"><p><strong>Visit</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Visit from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'block') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar badge-danger"><i class="fa fa-times-circle"></i></span><div class="media-body"><p><strong>Block</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Block from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'match') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-pink"><i class="fa fa-heart"></i></span><div class="media-body"><p><strong>Match</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Match from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'report') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-dark"><i class="fa fa-frown-o"></i></span><div class="media-body"><p><strong>Report</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Report from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'unreport') {
+        $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-secondary"><i class="fa fa-smile-o "></i></span><div class="media-body"><p><strong>Unreport</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unreport from ' + data['username_user'] + '</p></div>')
+      }
+      else if (data['type'] == 'chat') {
+        $("#dot_msg").addClass('has-new')
+
+        $("#notif_msg_list").prepend(' <a class="media media-new" > <span class="avatar  "> <img src="' + data['user_pic'] + '" ></span><div class="media-body"><p><strong>' + data['user_username'] + '</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>New message</p></div> </a>')
+      }
+
+    });
+
+
+
+
+    var first_click = true;
+    $('#notif').click(function (e) {
+      socket.emit('vuenotif', { 'notified': '{{ me.username }}' });
+      if (first_click) {
+        $("#dot_notif").removeClass('has-new')
+        first_click = false;
+      }
+      else {
+        $("#count_notific").html('0')
+      }
+
+    });
+
+    // ___________________________________________________
+
+    $("#location_btn").click(function (e) {
+      navigator.permissions.query({ name: 'geolocation' })
+        .then(function (permissionStatus) {
+
+          navigator.geolocation.getCurrentPosition(function (position) {
+          });
+
+          if (permissionStatus.state == 'granted') {
+
+            navigator.geolocation.getCurrentPosition(function (position) {
+
+              $('#lat').val(position.coords.latitude);
+              $('#long').val(position.coords.longitude);
+
+            });
+          } else if (permissionStatus.state == 'denied') {
+            $('#lat').val('None');
+            $('#long').val('None');
+          }
+
+          permissionStatus.onchange = function () {
+
+            if (this.state == "granted") {
+
+              navigator.geolocation.getCurrentPosition(function (position) {
+
+                $('#lat').val(position.coords.latitude);
+                $('#long').val(position.coords.longitude);
+              });
+            } else if (this.state == "denied") {
+              $('#lat').val('None');
+              $('#long').val('None');
+            }
+
+          };
+
+
+
+
+        });
+
+
+
+      // Uncheck #x
+      // $( "#x" ).prop( "checked", false );
+      // $("#wait").show();
+      // $("#location_btn").prop("checked", true);
+      // Check for Geolocation API permissions
+
+
+
+    });
+
+    $("#delete_pic").click(function (e) {
+      socket.emit('delete_profile_pic', { 'me': '{{ me.id }}' });
+      location.reload();
+    });
+
+    $(".unblock").click(function (e) {
+
+      var id = e.target.attributes.userid.value;
+
+      socket.emit('block', { 'me': '{{ me.id }}', 'user_id': id, 'me_username': '{{ me.username }}' });
+      location.reload();
+
+
+
+
+      // return false;
+    });
+
+
+
+
+
+
+
+  });
+</script>
+
+{% endblock %}

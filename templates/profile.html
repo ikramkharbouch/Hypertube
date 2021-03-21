@@ -1,0 +1,254 @@
+{%extends "base.html" %}
+
+
+
+{% block content %}
+
+
+<main>
+    <div class="main-content">
+        <div class="row">
+
+            <div class="card card-shadowed px-50 py-30 w-600px mx-auto">
+                <div class="media bb-1 border-fade">
+                    <img class="avatar avatar-lg" src="{{profile.profile_pic}}" alt="...">
+                    <div class="media-body">
+
+                        <p>
+                            <strong>
+                                <h1>{{profile.username}}</h1>
+                            </strong>
+                            <p>{{profile.age}} years old </p>
+                            {% if profile.id  in users_list %}
+                       
+                            <time class="float-right text-lighter"><span class="badge badge-dot badge-success"></span>
+                                online</time>
+                            {% else %}
+                            <time class="float-right text-lighter"><span class="badge badge-dot  badge-danger"></span>
+                                &nbsp;{{profile['status']}}</time>
+                            {%endif%}
+
+                        </p>
+                        <!-- <p><small>{{profile.preference}}</small></p> -->
+                    </div>
+                </div>
+                <button class=" btn btn-label   no-click "><label><i class="fa fa-gift"></i></label> {{profile.score}}
+                    points</button>
+                <br>
+                {% if match == 'yes' %}
+                <button class=" btn btn-label   no-click "><label><i class="fa fa-link"></i></label> Matched</button>
+                <br>
+                {%else%}
+                <button class=" btn btn-label   no-click "><label><i class="fa fa-link"></i></label> Not
+                    Matched</button> <br>
+                {%endif%}
+                <button class=" btn btn-label   no-click "><label><i class="fa fa-map-marker"></i></label>
+                    {{profile.km | int}}KM</button> <br>
+                <button class=" btn btn-label   no-click "><label><i class="fa fa-transgender-alt"></i></label>
+                    {{profile.gender}}</button><br>
+                <button class=" btn btn-label   no-click "><label><i class="fa fa-asl-interpreting"></i></label>
+                    {{profile.preference}}</button><br>
+
+                <!-- <hr>
+            <h5><strong>Label</strong> buttons</h5>
+            <p><code>.btn-label</code> applies to <em>.btn</em></p> -->
+                <!-- <button class="">{{btn}}</button> -->
+
+                <div class="row">
+                    <div>
+                        &nbsp;&nbsp;&nbsp;
+                        {% if btn == "Unlike"%}
+                        <button class="like-unlike btn btn-w-md btn-multiline btn-primary" value="Unlike"><i
+                                class="fa fa-close"></i><br>{{btn}}</button>
+                        {% else %}
+                        <button class="like-unlike btn btn-w-md btn-multiline btn-primary" value="Like"><i
+                                class="fa fa-heart"></i><br>{{btn}}</button>
+                        {%endif%}
+                        <a href="home"> <button id="block" class="btn btn-w-md btn-multiline btn-primary"><i
+                                    class="fa fa-ban"></i><br>Blocks</button> </a>
+                        {% if match == 'yes' %}
+                        <a href="{{url_for('chat', id = profile['id'] )}}"> <button
+                                class="btn btn-w-md btn-multiline btn-primary"><i
+                                    class="fa fa-wechat"></i><br>Chat</button></a>
+                        {%endif%}
+                        <button class="report_btn btn btn-w-md btn-multiline btn-primary" value="{{btn_report}}"><i
+                                class="fa fa-exclamation-triangle"></i><br>{{btn_report}}</button>
+                    </div>
+                </div>
+                <br>
+                <div class="divider" style="margin: 0 !important;"> Biography</div>
+                <br>
+                <h5 class="text-center">{{profile.bio}}</h5>
+                <br><br>
+                <div class="divider" style="margin: 0 !important;"> Hashtags</div>
+
+                <header>
+                    <br>
+                    <div class="gap-items-2 mb-10 text-center">
+                        {% for hashtag in hashtags%}
+                        <span class=" badge badge-pill badge-bold badge-secondary yellow_back">{{hashtag}}</span>
+                        {%endfor%}
+                    </div>
+                    <br>
+                </header>
+
+
+
+
+
+            </div>
+
+            <div class="card card-shadowed px-50 py-30 w-500px mx-auto">
+                <div class="swiper-container" data-provide="swiper">
+                    <strong>
+                        <h1 class="text-center">Pictures :</h1>
+                    </strong>
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <img src="{{profile['img1']}}" alt="...">
+                        </div>
+
+                        <div class="swiper-slide">
+                            <img src="{{profile['img2']}}" alt="...">
+                        </div>
+
+                        <div class="swiper-slide">
+                            <img src="{{profile['img3']}}" alt="...">
+                        </div>
+                        {% if profile['img4'] != '' %}
+                        <div class="swiper-slide">
+                            <img src="{{profile['img4']}}" alt="...">
+                        </div>
+                        {%endif%}
+                    </div>
+
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+
+
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+        var socket = io.connect('http://127.0.0.1:5000');
+        socket.on('connect', function () {
+            socket.emit('online');
+        });
+
+
+
+        // # --------------------------------------------------------------------------------------------------
+        // # -------------------------------------#notif show -----------------------------------------------
+        // # --------------------------------------------------------------------------------------------------
+
+        socket.on('shownotif', function (data) {
+
+            app.toast(data['msg'], {
+                duration: 4000
+            });
+
+            $("#dot_notif").addClass('has-new')
+
+            var count = parseInt("{{count_vue_notif['COUNT(*)']}}") + 1;
+            ;
+            $("#count_notific").html(count);
+            if (data['type'] == 'like') {
+                $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-success"><i class="fa fa-thumbs-up"></i></span><div class="media-body"><p><strong>Like</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>Like from ' + data['username_user'] + '</p></div>')
+            }
+            else if (data['type'] == 'unlike') {
+                $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-warning"><i class="fa fa-thumbs-down"></i></span><div class="media-body"><p><strong>Unlike</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unlike from ' + data['username_user'] + '</p></div>')
+            }
+            else if (data['type'] == 'visit') {
+                $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-purple"><i class="fa fa-eye"></i></span><div class="media-body"><p><strong>Visit</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Visit from ' + data['username_user'] + '</p></div>')
+            }
+            else if (data['type'] == 'block') {
+                $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar badge-danger"><i class="fa fa-times-circle"></i></span><div class="media-body"><p><strong>Block</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Block from ' + data['username_user'] + '</p></div>')
+            }
+            else if (data['type'] == 'match') {
+                $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-pink"><i class="fa fa-heart"></i></span><div class="media-body"><p><strong>Match</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Match from ' + data['username_user'] + '</p></div>')
+            }
+            else if (data['type'] == 'report') {
+                $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-dark"><i class="fa fa-frown-o"></i></span><div class="media-body"><p><strong>Report</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Report from ' + data['username_user'] + '</p></div>')
+            }
+            else if (data['type'] == 'unreport') {
+                $("#notif_list").prepend(' <a class="media media-new" > <span class="avatar bg-secondary"><i class="fa fa-smile-o "></i></span><div class="media-body"><p><strong>Unreport</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p> Unreport from ' + data['username_user'] + '</p></div>')
+            }
+            else if (data['type'] == 'chat') {
+                $("#dot_msg").addClass('has-new')
+
+                $("#notif_msg_list").prepend(' <a class="media media-new" > <span class="avatar  "> <img src="' + data['user_pic'] + '" ></span><div class="media-body"><p><strong>' + data['user_username'] + '</strong> <time class="float-right"datetime="2017-07-14 20:00">' + data['time'] + '</time></p><p>New message</p></div> </a>')
+            }
+
+        });
+
+
+
+
+        var first_click = true;
+        $('#notif').click(function (e) {
+            socket.emit('vuenotif', { 'notified': '{{ me.username }}' });
+            if (first_click) {
+                $("#dot_notif").removeClass('has-new')
+                first_click = false;
+            }
+            else {
+                $("#count_notific").html('0')
+            }
+
+        });
+
+        // ___________________________________________________
+
+
+
+        $(".like-unlike").click(function (e) {
+            if ($(this).val() == 'Like') {
+                $(this).val('Unlike')
+                $(this).html('<i class="fa fa-close"></i><br>Unlike');
+                socket.emit('like_notif', { 'me': '{{ me.id }}', 'user_id': '{{profile.id}}', 'me_username': '{{ me.username }}' });
+            }
+            else {
+                $(this).val('Like');
+                $(this).html('<i class="fa fa-heart"></i><br>Like')
+                socket.emit('like_notif', { 'me': '{{ me.id }}', 'user_id': '{{profile.id}}', 'me_username': '{{ me.username }}' });
+            }
+            return false;
+
+        });
+
+        $(".report_btn").click(function (e) {
+            if ($(this).val() == "report") {
+                $(this).val("unreport")
+                $(this).html('<i class="fa fa-exclamation-triangle"></i><br>unreport');
+                socket.emit('report', { 'me': '{{ me.id }}', 'user_id': '{{profile.id}}', 'me_username': '{{ me.username }}' });
+            }
+            else {
+                $(this).val("report")
+                $(this).html('<i class="fa fa-exclamation-triangle"></i><br>report');
+                socket.emit('report', { 'me': '{{ me.id }}', 'user_id': '{{profile.id}}', 'me_username': '{{ me.username }}' });
+            }
+
+        });
+
+        $("#block").click(function (e) {
+
+            socket.emit('block', { 'me': '{{ me.id }}', 'user_id': '{{profile.id}}', 'me_username': '{{ me.username }}' });
+        });
+
+
+
+    });
+</script>
+
+
+{% endblock %}
