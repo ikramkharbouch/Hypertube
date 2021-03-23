@@ -1,6 +1,7 @@
 from flask import Flask, url_for, render_template, session, redirect
 from authlib.integrations.flask_client import OAuth
 from pyoauth2 import Client
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'root'
@@ -75,12 +76,18 @@ def gauthorize():
 def authorize():
     fortytwo = oauth.create_client('fortytwo')
     token = fortytwo.authorize_access_token()
-    # resp = fortytwo.get("/v2/coalitions")
+    url = 'https://api.intra.42.fr/oauth/token/info'
+    headers = {'Authorization': 'Bearer 0319b172a1e65fe8a626f16d9a85f205dd245bc0110dd9b21569219a29c616a2'}
+    r = requests.get(url, headers=headers)
+    # url = ("/%s/info" %(token))
+    # resp = fortytwo.get("https://api.intra.42.fr/oauth/token/info", headers={"Authorization: Bearer 0319b172a1e65fe8a626f16d9a85f205dd245bc0110dd9b21569219a29c616a2"})
     # # resp.raise_for_status()
-    # user_info = resp.json()
+    user_info = r.json()
     # do something with the token and profile
     # session['email'] = user_info['email']
-    return f'{token}'
+    for key, value in user_info.items():
+        print (key, value)
+    return f'{user_info}'
 
 
 app.run(debug=True)
