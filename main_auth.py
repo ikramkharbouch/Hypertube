@@ -1,12 +1,16 @@
 from flask import Flask, url_for, render_template, session, redirect
 from authlib.integrations.flask_client import OAuth
+from pyoauth2 import Client
 
 app = Flask(__name__)
 app.secret_key = 'root'
 
 # Oauth config
 
+# Creating an instance of authlib
+
 oauth = OAuth(app)
+
 google = oauth.register(
     name='google',
     client_id='247455405941-19ecmncpddf3kj27mn49jdsp4uncb8hq.apps.googleusercontent.com',
@@ -20,6 +24,20 @@ google = oauth.register(
     client_kwargs={'scope': 'openid email profile'},
 )
 
+
+fortytwo = oauth.register(
+    name='fortytwo',
+    client_id='e950453dc3fb64e3f37bd148d6dbdbcb04e4cd31b78133859082de9400e3c2a6',
+    client_secret='758845c438dcd3cd55f9d5a221735c23c2dae39f9797214aa434436e02c4b5b0',
+    access_token_url='https://api.intra.42.fr/oauth/token',
+    access_token_params=None,
+    authorize_url='https://api.intra.42.fr/oauth/authorize',
+    authorize_params=None,
+    api_base_url='https://api.intra.42.fr',
+    userinfo_endpoint=None,  # This is only needed if using openId to fetch user info
+    client_kwargs={'scope': 'public'},
+)
+
 # openid is google id, profile (Username, lastname), and the user's email
 
 @app.route('/')
@@ -30,14 +48,20 @@ def hello_world():
     email = dict(session).get('email', None)
     return f'{session.keys()}, {email}'
 
-@app.route('/login')
-def login():
+@app.route('/oauth/google')
+def login_google():
     google = oauth.create_client('google')
-    redirect_uri = url_for('authorize', _external=True)
+    redirect_uri = url_for('gauthorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
-@app.route('/authorize')
-def authorize():
+@app.route('/oauth/42')
+def login_42():
+    fortytwo = oauth.create_client('fortytwo')
+    redirect_uri = url_for('authorize', _external=True)
+    return fortytwo.authorize_redirect(redirect_uri)
+
+@app.route('/gauthorize')
+def gauthorize():
     google = oauth.create_client('google')
     token = google.authorize_access_token()
     resp = google.get('userinfo')
@@ -45,8 +69,18 @@ def authorize():
     user_info = resp.json()
     # do something with the token and profile
     session['email'] = user_info['email']
-    session['_google_authlib_state_'] = user_info['_google_authlib_state_']
-    return redirect('/')
+    return f'{user_info}'
+
+@app.route('/authorize')
+def authorize():
+    fortytwo = oauth.create_client('fortytwo')
+    token = fortytwo.authorize_access_token()
+    # resp = fortytwo.get("/v2/coalitions")
+    # # resp.raise_for_status()
+    # user_info = resp.json()
+    # do something with the token and profile
+    # session['email'] = user_info['email']
+    return f'{token}'
 
 
 app.run(debug=True)
